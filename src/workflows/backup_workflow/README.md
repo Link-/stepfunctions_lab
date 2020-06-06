@@ -1,5 +1,4 @@
 # Backup Workflow
-
 > ⚠️ Building this stack will generate cost in your billing dashboard, use it ONLY IF you understand the consequences ⚠️
 
 Simulates a scheduled backup workflow. An event rule is created in CloudWatch that triggers the exectuion of the Step Function's state machine every 5 minutes. In tern the state machine will invoke the backup simulation lambda.
