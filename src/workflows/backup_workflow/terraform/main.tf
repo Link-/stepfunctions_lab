@@ -4,8 +4,7 @@
 # |                                 |
 # | Creates an AWS Step Functions   |
 # | workflow to take scheduled      |
-# | backups of some system and      |
-# | store them in an S3 bucket.     |
+# | backups of some system.         |
 # |                                 |
 # | Keep in mind the "system" does  |
 # | not exist, so this just is a    |
