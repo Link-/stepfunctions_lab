@@ -26,24 +26,6 @@ provider "aws" {
 
 data "aws_region" "current" {}
 
-# Create the backup simulation lambda function to be used in the workflow
-resource "aws_lambda_function" "backup_lambda" {
-  filename      = var.lambda_function_payload
-  function_name = var.backup_lambda_function_name
-  role          = aws_iam_role.backup_lambda_iam_role.arn
-  handler       = "function.handler"
-
-  source_code_hash = filebase64sha256("${var.lambda_function_payload}")
-  runtime          = "python3.8"
-
-  depends_on = [
-    aws_iam_role.backup_lambda_iam_role,
-    aws_cloudwatch_log_group.backup_log,
-    aws_iam_role_policy_attachment.lambda_logs,
-    aws_iam_role_policy_attachment.lambda_execution
-  ]
-}
-
 # Create a cloudwatch log group for the lambda
 resource "aws_cloudwatch_log_group" "backup_log" {
   name              = "/aws/lambda/${var.backup_lambda_function_name}"
@@ -51,7 +33,7 @@ resource "aws_cloudwatch_log_group" "backup_log" {
 }
 
 # Create the role that the lambda will assume
-resource "aws_iam_role" "backup_lambda_iam_role" {
+resource "aws_iam_role" "backup_lambda" {
   name = var.backup_lambda_iam_role_name
 
   assume_role_policy = <<EOF
@@ -72,7 +54,7 @@ EOF
 }
 
 # iam role for step functions
-resource "aws_iam_role" "sfn_iam_role" {
+resource "aws_iam_role" "sfn_state_machine" {
   name = var.sfn_iam_role_name
 
   assume_role_policy = <<EOF
@@ -139,25 +121,43 @@ EOF
 
 # Attach the policies to the lambda role
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.backup_lambda_iam_role.name
+  role       = aws_iam_role.backup_lambda.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_execution" {
-  role       = aws_iam_role.backup_lambda_iam_role.name
+  role       = aws_iam_role.backup_lambda.name
   policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
 }
 
 # Attach the policies to the step functions role
 resource "aws_iam_role_policy_attachment" "lambda_invoke" {
-  role       = aws_iam_role.sfn_iam_role.name
+  role       = aws_iam_role.sfn_state_machine.name
   policy_arn = aws_iam_policy.sfn_lambda_invoke.arn
+}
+
+# Create the backup simulation lambda function to be used in the workflow
+resource "aws_lambda_function" "backup_lambda" {
+  filename      = var.lambda_function_payload
+  function_name = var.backup_lambda_function_name
+  role          = aws_iam_role.backup_lambda.arn
+  handler       = "function.handler"
+
+  source_code_hash = filebase64sha256("${var.lambda_function_payload}")
+  runtime          = "python3.8"
+
+  depends_on = [
+    aws_iam_role.backup_lambda,
+    aws_cloudwatch_log_group.backup_log,
+    aws_iam_role_policy_attachment.lambda_logs,
+    aws_iam_role_policy_attachment.lambda_execution
+  ]
 }
 
 # Create the step functions' state machine
 resource "aws_sfn_state_machine" "sfn_state_machine" {
   name     = var.sfn_state_machine_name
-  role_arn = aws_iam_role.sfn_iam_role.arn
+  role_arn = aws_iam_role.sfn_state_machine.arn
 
   definition = templatefile(var.sfn_state_machine_definition, {
     backup_lambda_arn = aws_lambda_function.backup_lambda.arn
@@ -165,7 +165,7 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
 
   depends_on = [
     aws_lambda_function.backup_lambda,
-    aws_iam_role.sfn_iam_role,
+    aws_iam_role.sfn_state_machine,
     aws_iam_role_policy_attachment.lambda_invoke
   ]
 }
