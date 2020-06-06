@@ -1,12 +1,11 @@
-# Source Structure
+# Structure
 
 ```
 .
-├── README.md
-├── activity_workers
-├── cfn_template
-├── lambdas
-└── workflow
+├── backup_workflow
+├── email_approval
+├── mobile_onboarding
+└── pdf_invoice
 
-4 directories, 1 file
+4 directories, 0 files
 ```
