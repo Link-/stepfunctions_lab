@@ -20,3 +20,48 @@ This workflow is more complex than `backup_workflow`, let's break down what's ha
 
 ## Structure
 
+## Setup
+
+```sh
+# Build the needed artefacts and run the controller app
+build_and_run.sh
+
+# Dry-run
+terraform plan \
+  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
+  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
+  terraform
+
+# Build the stack
+terraform apply \
+  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
+  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
+  terraform
+
+# Destroy the stack
+terraform destroy \
+  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
+  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
+  terraform
+```
+
+### Additional variables to consider
+
+The following arguments are support:
+
+- `aws_profile` : (string) AWS profile you'd like to use. Leave empty for default value
+- `aws_region` : (string) AWS region you'd like to use. Default: eu-west-1
+- `credentials_path` : (string) Path where AWS credentials are stored. Default: ~/.aws/credentials
+
+**Example:**
+```
+terraform apply \
+  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
+  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
+  --var="aws_profile=personal" \
+  --var="aws_region=eu-west-2" \
+  --var="credentials_path=~/.aws/non_default_credentials_file" \
+  terraform
+```
+
+⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
