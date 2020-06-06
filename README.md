@@ -21,6 +21,6 @@ TBD
 
 ## Meta
 
-Bassem Dghaidi – [@Link-](https://github.com/link-)
+Bassem Dghaidi – [@bassemdy](https://twitter.com/bassemdy)
 
 Distributed under the Apache License v2.0. See ``LICENSE`` for more information.
