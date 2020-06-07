@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1= title
+  p This view has 2 sections: <strong>Simulate Order</strong> and <strong>Approve/Reject Orders</strong>
+
+  #container_simulate
+    h3 Simulate Order
+    p Click the button to generate a fake order and start a new state machine execution: 
+      button#start_execution Start
+
+    h4 AWS Response
+
+    #response_start 
+      p Output here...
+
+  hr
+
+  #container_process
+    h3 Approve/Reject Orders
+
+    h4 AWS Response
+
+    #response_process
+      p Output here...

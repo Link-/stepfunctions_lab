@@ -66,4 +66,3 @@ cd $EXPRESS_APP_PATH
 echo "$(date +%F_%T) \t INFO:: switching to parent directory $(pwd)"
 echo "$(date +%F_%T) \t INFO:: running npm install in $EXPRESS_APP_PATH"
 npm ci
-npm start
