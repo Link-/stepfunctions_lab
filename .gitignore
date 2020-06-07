@@ -174,3 +174,6 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Any .local file
+*.local
