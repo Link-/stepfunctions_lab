@@ -22,9 +22,16 @@ This is not a **production ready architecture**. This is designed for educationa
 
 ## Structure
 
-## Setup
+## Build the AWS Stack
+
+The below will prepare the AWS environment we will use with this workflow demo. It will create the necessary IAM roles, policies, step functions state machine, SQS queue and a lambda.
+
+Don't forget to destroy the stack when you are done with it with `terraform destroy`.
 
 ```sh
+# Make sure you are in the main project directory
+approval_workflow/
+
 # Build the needed artefacts and run the controller app
 init.sh
 
@@ -53,32 +60,10 @@ terraform output -json
 terraform output api_url
 ```
 
-### Additional variables to consider
-
-The following arguments are supported:
-
-- `aws_profile` : (string) AWS profile you'd like to use. Leave empty for default value
-- `aws_region` : (string) AWS region you'd like to use. Default: eu-west-1
-- `credentials_path` : (string) Path where AWS credentials are stored. Default: ~/.aws/credentials
-
-**Example:**
-```sh
-terraform apply \
-  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
-  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
-  --var="aws_profile=personal" \
-  --var="aws_region=eu-west-2" \
-  --var="credentials_path=~/.aws/non_default_credentials_file" \
-  terraform
-```
-
-⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
-
-## Usage
+If you don't want to test the environment from the AWS console, you can use the local web interface in this repo available in `./app` to interact with the demo.
 
 After you run `terraform apply` as per the above, you will get the following output:
 
-**Output:**
 ```sh
 Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
 
@@ -106,3 +91,24 @@ env API_URL="https://<unique_id>.execute-api.eu-west-1.amazonaws.com/test/order"
 env SFN_ARN="arn:aws:states:eu-west-1:<account_numb>:stateMachine:ApprovalWorkflowStateMachine-helped-skylark" \
 npm start
 ```
+
+### Additional variables to consider
+
+The following arguments are supported:
+
+- `aws_profile` : (string) AWS profile you'd like to use. Leave empty for default value
+- `aws_region` : (string) AWS region you'd like to use. Default: eu-west-1
+- `credentials_path` : (string) Path where AWS credentials are stored. Default: ~/.aws/credentials
+
+**Example:**
+```sh
+terraform apply \
+  --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
+  --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
+  --var="aws_profile=personal" \
+  --var="aws_region=eu-west-2" \
+  --var="credentials_path=~/.aws/non_default_credentials_file" \
+  terraform
+```
+
+⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
