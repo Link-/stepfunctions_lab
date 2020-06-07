@@ -13,7 +13,6 @@
       "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
       "Parameters": {
         "QueueUrl": "${order_sqs_url}",
-        "MessageGroupId": "${order_sqs_message_group_id}",
         "MessageBody": {
           "MessageTitle": "Processing Order, approve / reject to proceed.",
           "TaskToken.$": "$$.Task.Token"

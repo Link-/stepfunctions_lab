@@ -34,6 +34,7 @@ $(function() {
     $.ajax({
       type: "GET",
       url: "/api/pending",
+      timeout: 10000,
       dataType: 'json',
       success: function(data) {
         // Add the elements
@@ -43,7 +44,6 @@ $(function() {
 <div>
   <p>${order.MessageId}</p>
   <button class='process_order' data-ReceiptHandle='${order.ReceiptHandle}' data-MessageId='${order.MessageId}' data-TaskToken='${parsedBody.TaskToken}'>Approve</button>
-  <button class='process_order' data-ReceiptHandle='${order.ReceiptHandle}' data-MessageId='${order.MessageId}' data-TaskToken='${parsedBody.TaskToken}'>Reject</button>
   <hr />
 </div>
 `

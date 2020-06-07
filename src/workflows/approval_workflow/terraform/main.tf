@@ -267,9 +267,9 @@ resource "aws_sfn_state_machine" "sfn_state_machine" {
 
 # Create the queue to contain the orders pending approval / rejection
 resource "aws_sqs_queue" "orders_queue" {
-  name                        = "pending_orders_queue.fifo"
-  fifo_queue                  = true
-  content_based_deduplication = true
+  name                        = "pending_orders_queue"
+  fifo_queue                  = false
+  content_based_deduplication = false
 }
 
 # Create the API gateway endpoint that will trigger the execution of a state machine

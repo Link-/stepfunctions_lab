@@ -24,7 +24,7 @@ This workflow is more complex than `backup_workflow`, let's break down what's ha
 
 ```sh
 # Build the needed artefacts and run the controller app
-init_and_run.sh
+init.sh
 
 # Dry-run
 terraform plan \
@@ -43,6 +43,12 @@ terraform destroy \
   --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
   --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
   terraform
+
+# Get output in json format
+terraform output -json
+
+# Get the value of a specific output
+terraform output api_url
 ```
 
 ### Additional variables to consider
@@ -54,7 +60,7 @@ The following arguments are supported:
 - `credentials_path` : (string) Path where AWS credentials are stored. Default: ~/.aws/credentials
 
 **Example:**
-```
+```sh
 terraform apply \
   --var="lambda_function_payload="(pwd)"/lambda/payload.zip" \
   --var="sfn_state_machine_definition="(pwd)"/state_machine_definition.json.tpl" \
@@ -71,31 +77,30 @@ terraform apply \
 After you run `terraform apply` as per the above, you will get the following output:
 
 **Output:**
-```
-Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```sh
+Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
 
 Outputs:
 
-api_url = https://62sd7fkho9.execute-api.eu-west-1.amazonaws.com/test
-order_process_lambda_arn = arn:aws:lambda:eu-west-1:930770047795:function:PROCESS_ORDER-absolute-flounder
-orders_queue_sqs_url = https://sqs.eu-west-1.amazonaws.com/930770047795/pending_orders_queue.fifo
-sfn_state_machine_arn = arn:aws:states:eu-west-1:930770047795:stateMachine:ApprovalWorkflowStateMachine-absolute-flounder
+api_url = https://<unique_id>.execute-api.eu-west-1.amazonaws.com/test
+order_process_lambda_arn = arn:aws:lambda:eu-west-1:<account_numb>:function:PROCESS_ORDER-helped-skylark
+orders_queue_sqs_url = https://sqs.eu-west-1.amazonaws.com/<account_numb>/pending_orders_queue.fifo
+sfn_state_machine_arn = arn:aws:states:eu-west-1:<account_numb>:stateMachine:ApprovalWorkflowStateMachine-helped-skylark
 ```
 
-Replace `<api_url>` and `<sfn_state_machine_arn>` with the values from the outputs above:
+### Controller App
+
+Replace the environment variable values with the values from the output above and run `npm start`. Example:
 
 ```sh
-# Start an execution
-curl --location --request POST '<api_url>' \
---header 'Content-Type: text/plain' \
---data-raw '{
-   "input": "{}",
-   "name": "SampleRun",
-   "stateMachineArn": "<sfn_state_machine_arn>"
-}'
-
-#> Output
-{
-  "executionArn":"arn:aws:states:eu-west-1:930770047795:execution:ApprovalWorkflowStateMachine-absolute-flounder:SampleRun","startDate":1.59153210932E9
-}
+env AWS_REGION="eu-west-1" \
+env QUEUE_URL="https://sqs.eu-west-1.amazonaws.com/<account_numb>/pending_orders_queue" \
+env API_URL="https://<unique_id>.execute-api.eu-west-1.amazonaws.com/test/order" \
+env SFN_ARN="arn:aws:states:eu-west-1:<account_numb>:stateMachine:ApprovalWorkflowStateMachine-helped-skylark" \
+npm start
 ```
+
+## References
+
+- [https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-shared.html](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-shared.html)
+- [https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/sqs-examples-send-receive-messages.html](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/sqs-examples-send-receive-messages.html)

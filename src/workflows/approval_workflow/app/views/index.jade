@@ -2,14 +2,16 @@ extends layout
 
 block content
   h1= title
-  p This view has 2 sections: <strong>Simulate Order</strong> and <strong>Approve/Reject Orders</strong>
+  p This view has 2 sections: <strong>Simulate Order</strong> and <strong>Approve Orders</strong>
+
+  hr
 
   #container_simulate
     h3 Simulate Order
     p Click the button to generate a fake order and start a new state machine execution: 
-      button#start_execution Start
+      button#start_execution New Order
 
-    h4 AWS Response
+    h5 AWS Response
 
     #response_start 
       p Output here...
@@ -17,10 +19,12 @@ block content
   hr
 
   #container_process
-    h3 Approve/Reject Orders. Fetch pending orders: (Maximum 10 orders will appear)
+    h3 Approve Orders
+    p Click the button to fetch up to 10 orders at a time from SQS: 
       button#get_pending_orders Get Orders
+    p <i>Hint: if messages do not appear, it means they are in-flight and you have to wait until they are back in the Queue</i>
 
-    h4 AWS Response
+    h5 AWS Response
 
     #response_process
       p Output here...
@@ -29,3 +33,5 @@ block content
     
     #approval_process
       p Output here...
+  
+  hr

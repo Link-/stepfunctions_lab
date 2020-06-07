@@ -20,17 +20,18 @@ router.get('/pending', function(req, res, next) {
     AttributeNames: [
        "SentTimestamp"
     ],
-    MaxNumberOfMessages: 10,
+    MaxNumberOfMessages: 1,
     MessageAttributeNames: [
        "All"
     ],
     QueueUrl: queueURL,
-    VisibilityTimeout: 3600,
+    VisibilityTimeout: 60,
     WaitTimeSeconds: 0
   };
 
   sqs.receiveMessage(params, function(err, data) {
     if (err) {
+      console.log(err);
       res.send("Received Error", err);
     } else if (data.Messages) {
       res.send(data.Messages)
