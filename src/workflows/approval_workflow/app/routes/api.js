@@ -39,7 +39,7 @@ router.get('/pending', function(req, res, next) {
   });
 });
 
-/* POST /approval - approve / reject pending orders */
+/* POST /approval - approve pending orders */
 router.post('/approval', function(req, res, next) {
   var sfnParams = {
     output: '{ "status": "SUCCESS" }',
