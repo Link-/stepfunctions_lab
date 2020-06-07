@@ -24,7 +24,7 @@ This workflow is more complex than `backup_workflow`, let's break down what's ha
 
 ```sh
 # Build the needed artefacts and run the controller app
-build_and_run.sh
+init_and_run.sh
 
 # Dry-run
 terraform plan \
@@ -47,7 +47,7 @@ terraform destroy \
 
 ### Additional variables to consider
 
-The following arguments are support:
+The following arguments are supported:
 
 - `aws_profile` : (string) AWS profile you'd like to use. Leave empty for default value
 - `aws_region` : (string) AWS region you'd like to use. Default: eu-west-1

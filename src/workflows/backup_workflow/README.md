@@ -32,7 +32,7 @@ The following is the list of the important folders / files in this project that 
 
 ```sh
 # Run the build script to generate the lambda function payload
-build.sh
+init.sh
 
 # Dry-run
 terraform plan \
@@ -55,7 +55,7 @@ terraform destroy \
 
 ### Additional variables to consider
 
-The following arguments are support:
+The following arguments are supported:
 
 - `aws_profile` : (string) AWS profile you'd like to use. Leave empty for default value
 - `aws_region` : (string) AWS region you'd like to use. Default: eu-west-1
