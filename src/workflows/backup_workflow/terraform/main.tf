@@ -25,6 +25,8 @@ provider "aws" {
 
 data "aws_region" "current" {}
 
+# Used to be appended to all resources names to make the setup
+# unique
 resource "random_pet" "suffix" {
   length    = 2
   separator = "-"

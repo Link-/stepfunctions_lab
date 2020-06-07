@@ -10,9 +10,10 @@
     },
     "Request Approval": {
       "Type": "Task",
-      "Resource": "${order_sqs_arn}",
+      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
       "Parameters": {
         "QueueUrl": "${order_sqs_url}",
+        "MessageGroupId": "${order_sqs_message_group_id}",
         "MessageBody": {
           "MessageTitle": "Processing Order, approve / reject to proceed.",
           "TaskToken.$": "$$.Task.Token"
@@ -33,8 +34,7 @@
     "Failure": {
       "Type": "Fail",
       "Cause": "Order processing failed or denied",
-      "Error": "Request Approval returned FAILED",
-      "End": true
+      "Error": "Request Approval returned FAILED"
     }
   }
 }
