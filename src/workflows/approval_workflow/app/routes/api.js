@@ -10,6 +10,9 @@ AWS.config.update({region: region});
 var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
 var queueURL = process.env.QUEUE_URL;
 
+// Create Step Functions service object
+var sfn = new AWS.StepFunctions();
+
 /* GET /pending - returns list of pending orders */
 router.get('/pending', function(req, res, next) {
   
@@ -22,7 +25,7 @@ router.get('/pending', function(req, res, next) {
        "All"
     ],
     QueueUrl: queueURL,
-    VisibilityTimeout: 20,
+    VisibilityTimeout: 3600,
     WaitTimeSeconds: 0
   };
 
@@ -37,7 +40,33 @@ router.get('/pending', function(req, res, next) {
 
 /* POST /approval - approve / reject pending orders */
 router.post('/approval', function(req, res, next) {
-  res.send('approval / rejection');
+  var sfnParams = {
+    output: '{ "status": "SUCCESS" }',
+    taskToken: req.body.token
+  };
+
+  var sqsParams = {
+    QueueUrl: process.env.QUEUE_URL,
+    ReceiptHandle: req.body.receiptHandle
+  }
+  // Send the TaskSuccess to Step Functions
+  sfn.sendTaskSuccess(sfnParams, function(err, data) {
+    if (err) {
+      console.log(`StepFunctions Fail: ${err}`);
+      res.status(500).json({status: 'failed'})
+    } else {
+      // Delete the message from the Queue
+      sqs.deleteMessage(sqsParams, function(err, data) {
+        if (err) {
+          console.log(`SQS Fail: ${err}`);
+          res.status(500).json({status: 'failed'})
+        } else {
+          console.log(data);
+          res.status(200).json({status: 'ok'})
+        }
+      });
+    }
+  })
 });
 
 module.exports = router;

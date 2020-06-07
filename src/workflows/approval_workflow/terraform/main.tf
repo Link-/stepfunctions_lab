@@ -323,3 +323,15 @@ resource "aws_api_gateway_deployment" "order_process" {
   rest_api_id = aws_api_gateway_rest_api.order_process.id
   stage_name  = "test"
 }
+
+/**
+ * Enable CORS on the APIs to allow calling them from the controller app
+ * running locally
+ */
+module "cors" {
+  source = "squidfunk/api-gateway-enable-cors/aws"
+  version = "0.3.1"
+
+  api_id          = aws_api_gateway_rest_api.order_process.id
+  api_resource_id = aws_api_gateway_resource.order.id
+}
