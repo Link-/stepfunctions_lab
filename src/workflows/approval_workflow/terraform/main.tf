@@ -62,6 +62,41 @@ resource "aws_iam_role" "order_process_lambda" {
 EOF
 }
 
+# Create lambda policy to allow it to write to cloudwatch log groups
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging-${random_pet.suffix.id}"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+# Attach the policies to the lambda role
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.order_process_lambda.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_execution" {
+  role       = aws_iam_role.order_process_lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
+}
+
 # iam role for step functions
 resource "aws_iam_role" "sfn_state_machine" {
   name = "${var.sfn_iam_role_name}-${random_pet.suffix.id}"
@@ -104,30 +139,6 @@ resource "aws_iam_policy" "sfn_lambda_invoke" {
 EOF
 }
 
-# Create lambda policy to allow it to write to cloudwatch log groups
-resource "aws_iam_policy" "lambda_logging" {
-  name        = "lambda_logging-${random_pet.suffix.id}"
-  path        = "/"
-  description = "IAM policy for logging from a lambda"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Resource": "arn:aws:logs:*:*:*",
-      "Effect": "Allow"
-    }
-  ]
-}
-EOF
-}
-
 # Create lambda policy to allow it to push messages to SQS
 resource "aws_iam_policy" "sfn_sqs" {
   name        = "sfn_sqs-${random_pet.suffix.id}"
@@ -150,17 +161,6 @@ resource "aws_iam_policy" "sfn_sqs" {
 EOF
 }
 
-# Attach the policies to the lambda role
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.order_process_lambda.name
-  policy_arn = aws_iam_policy.lambda_logging.arn
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_execution" {
-  role       = aws_iam_role.order_process_lambda.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
-}
-
 resource "aws_iam_role_policy_attachment" "sfn_sqs" {
   role       = aws_iam_role.sfn_state_machine.name
   policy_arn = aws_iam_policy.sfn_sqs.arn
@@ -170,6 +170,53 @@ resource "aws_iam_role_policy_attachment" "sfn_sqs" {
 resource "aws_iam_role_policy_attachment" "lambda_invoke" {
   role       = aws_iam_role.sfn_state_machine.name
   policy_arn = aws_iam_policy.sfn_lambda_invoke.arn
+}
+
+# iam role for api gateway to start a state machine execution
+resource "aws_iam_role" "api_gateway" {
+  name = "${var.api_gateway_iam_role_name}-${random_pet.suffix.id}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# Create an API Gateway policy to allow it to start a new state machine execution
+resource "aws_iam_policy" "api_gateway_sfn" {
+  name        = "api_gateway_sfn-${random_pet.suffix.id}"
+  path        = "/"
+  description = "IAM policy triggering state machine executions"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "states:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# Attach the policies to the api gateway role
+resource "aws_iam_role_policy_attachment" "api_gateway_sfn" {
+  role       = aws_iam_role.api_gateway.name
+  policy_arn = aws_iam_policy.api_gateway_sfn.arn
 }
 
 # Create the backup simulation lambda function to be used in the workflow
@@ -223,4 +270,56 @@ resource "aws_sqs_queue" "orders_queue" {
   name                        = "pending_orders_queue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
+}
+
+# Create the API gateway endpoint that will trigger the execution of a state machine
+resource "aws_api_gateway_rest_api" "order_process" {
+  name        = "${var.api_gateway_order_process_api_name}-${random_pet.suffix.id}"
+  description = "Proxy to handle requests to our API"
+}
+
+resource "aws_api_gateway_resource" "order" {
+  rest_api_id = aws_api_gateway_rest_api.order_process.id
+  parent_id   = aws_api_gateway_rest_api.order_process.root_resource_id
+  path_part   = "order"
+}
+
+resource "aws_api_gateway_method" "post" {
+  rest_api_id   = aws_api_gateway_rest_api.order_process.id
+  resource_id   = aws_api_gateway_resource.order.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method_response" "response_200" {
+  rest_api_id = aws_api_gateway_rest_api.order_process.id
+  resource_id = aws_api_gateway_resource.order.id
+  http_method = aws_api_gateway_method.post.http_method
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration_response" "sfn_response" {
+  rest_api_id = aws_api_gateway_rest_api.order_process.id
+  resource_id = aws_api_gateway_resource.order.id
+  http_method = aws_api_gateway_method.post.http_method
+  status_code = aws_api_gateway_method_response.response_200.status_code
+}
+
+resource "aws_api_gateway_integration" "start_execution" {
+  rest_api_id             = aws_api_gateway_rest_api.order_process.id
+  resource_id             = aws_api_gateway_resource.order.id
+  http_method             = aws_api_gateway_method.post.http_method
+  integration_http_method = "POST"
+  type                    = "AWS"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:states:action/StartExecution"
+  credentials             = aws_iam_role.api_gateway.arn
+}
+
+resource "aws_api_gateway_deployment" "order_process" {
+  depends_on = [
+    aws_api_gateway_integration.start_execution,
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.order_process.id
+  stage_name  = "test"
 }

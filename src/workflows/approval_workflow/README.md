@@ -65,3 +65,37 @@ terraform apply \
 ```
 
 ⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
+
+## Usage
+
+After you run `terraform apply` as per the above, you will get the following output:
+
+**Output:**
+```
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+api_url = https://62sd7fkho9.execute-api.eu-west-1.amazonaws.com/test
+order_process_lambda_arn = arn:aws:lambda:eu-west-1:930770047795:function:PROCESS_ORDER-absolute-flounder
+orders_queue_sqs_url = https://sqs.eu-west-1.amazonaws.com/930770047795/pending_orders_queue.fifo
+sfn_state_machine_arn = arn:aws:states:eu-west-1:930770047795:stateMachine:ApprovalWorkflowStateMachine-absolute-flounder
+```
+
+Replace `<api_url>` and `<sfn_state_machine_arn>` with the values from the outputs above:
+
+```sh
+# Start an execution
+curl --location --request POST '<api_url>' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+   "input": "{}",
+   "name": "SampleRun",
+   "stateMachineArn": "<sfn_state_machine_arn>"
+}'
+
+#> Output
+{
+  "executionArn":"arn:aws:states:eu-west-1:930770047795:execution:ApprovalWorkflowStateMachine-absolute-flounder:SampleRun","startDate":1.59153210932E9
+}
+```

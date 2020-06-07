@@ -40,3 +40,13 @@ variable "sfn_iam_role_name" {
   default     = "ApprovalWorkflowStepFunctionsRole"
   description = "Name of the IAM role used for the approval workflow state machine"
 }
+
+variable "api_gateway_order_process_api_name" {
+  default     = "OrderProcessAPI"
+  description = "Name of the API Gateway's API used to trigger a workflow execution"
+}
+
+variable "api_gateway_iam_role_name" {
+  default     = "APIGatewayRole"
+  description = "Name of the IAM role used by the API gateway to trigger new state machine executions"
+}

@@ -9,3 +9,7 @@ output "sfn_state_machine_arn" {
 output "orders_queue_sqs_url" {
   value = aws_sqs_queue.orders_queue.id
 }
+
+output "api_url" {
+  value = aws_api_gateway_deployment.order_process.invoke_url
+}
