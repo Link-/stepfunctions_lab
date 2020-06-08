@@ -1,4 +1,4 @@
-# Backup Workflow
+# Approval Workflow
 > ⚠️ Building this stack will generate costs in your billing dashboard, use it ONLY IF you understand the consequences ⚠️
 
 This is a step functions workflow that demonstrates how you can implement signaling (pausing and processing external input) with the help of callbacks and AWS SQS.
@@ -55,7 +55,7 @@ The following is the list of the important folders / files in this project that 
 ```
 
 - `app/`: Folder containing the controller app. Node.js web application built with Express
-- `lambda/` : Folder containg the payload of the backup lambda function
+- `lambda/` : Folder containg the payload of the order process lambda function
 - `terraform/` : Folder containing the terraform templates
 - `init.sh` : Script that will build the needed artefacts and prepare the terraform environment
 - `state_machine_definition.json.tpl` : The definition of the step function's state machine. It's been re-written as a terraform template to allow the injection of the lambda's arn in it
