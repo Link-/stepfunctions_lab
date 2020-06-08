@@ -28,7 +28,10 @@ The following is the list of the important folders / files in this project that 
 - `init.sh` : Script that will build the needed artefacts and prepare the terraform environment
 - `state_machine_definition.json.tpl` : The definition of the step function's state machine. It's been re-written as a terraform template to allow the injection of the lambda's arn in it
 
-## Run
+## Build the AWS Stack
+
+**Pre-requisites:**
+- Terraform v0.12.x+
 
 ```sh
 # Run the build script to generate the lambda function payload
@@ -53,6 +56,8 @@ terraform destroy \
   terraform
 ```
 
+⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
+
 ### Additional variables to consider
 
 The following arguments are supported:
@@ -72,9 +77,7 @@ terraform apply \
   terraform
 ```
 
-⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
-
-## AWS Assets Created with Terraform
+## List of AWS Assets Created
 
 ### IAM Roles and Policies
 

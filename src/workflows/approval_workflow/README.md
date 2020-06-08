@@ -62,6 +62,11 @@ The following is the list of the important folders / files in this project that 
 
 ## Build the AWS Stack
 
+**Pre-requisites:**
+- npm
+- Node.js v12.x.x+
+- Terraform v0.12.x+
+
 The below will prepare the AWS environment we will use with this workflow demo. It will create the necessary IAM roles, policies, step functions state machine, SQS queue and a lambda.
 
 Don't forget to destroy the stack when you are done with it with `terraform destroy`.
