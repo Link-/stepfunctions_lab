@@ -296,6 +296,13 @@ resource "aws_api_gateway_method_response" "response_200" {
   resource_id = aws_api_gateway_resource.order.id
   http_method = aws_api_gateway_method.post.http_method
   status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true,
+    "method.response.header.Access-Control-Allow-Methods" = true,
+    "method.response.header.Access-Control-Allow-Origin" = true,
+    "method.response.header.Access-Control-Allow-Credentials" = true
+  }
 }
 
 resource "aws_api_gateway_integration_response" "sfn_response" {
@@ -303,6 +310,13 @@ resource "aws_api_gateway_integration_response" "sfn_response" {
   resource_id = aws_api_gateway_resource.order.id
   http_method = aws_api_gateway_method.post.http_method
   status_code = aws_api_gateway_method_response.response_200.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST,PUT'",
+    "method.response.header.Access-Control-Allow-Origin" = "'*'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+  }
 }
 
 resource "aws_api_gateway_integration" "start_execution" {
@@ -316,12 +330,14 @@ resource "aws_api_gateway_integration" "start_execution" {
 }
 
 resource "aws_api_gateway_deployment" "order_process" {
-  depends_on = [
-    aws_api_gateway_integration.start_execution,
-  ]
-
   rest_api_id = aws_api_gateway_rest_api.order_process.id
   stage_name  = "test"
+
+  depends_on = [
+    aws_api_gateway_integration.start_execution,
+    aws_api_gateway_method_response.response_200,
+    aws_api_gateway_integration_response.sfn_response
+  ]
 }
 
 /**
@@ -329,9 +345,10 @@ resource "aws_api_gateway_deployment" "order_process" {
  * running locally
  */
 module "cors" {
-  source = "squidfunk/api-gateway-enable-cors/aws"
+  source  = "squidfunk/api-gateway-enable-cors/aws"
   version = "0.3.1"
 
-  api_id          = aws_api_gateway_rest_api.order_process.id
-  api_resource_id = aws_api_gateway_resource.order.id
+  api_id            = aws_api_gateway_rest_api.order_process.id
+  api_resource_id   = aws_api_gateway_resource.order.id
+  allow_credentials = true
 }

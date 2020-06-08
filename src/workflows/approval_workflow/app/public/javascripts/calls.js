@@ -9,6 +9,7 @@ $(function() {
       type: "POST",
       url: env_variables.API_URL,
       dataType: 'json',
+      timeout: 5000,
       data: JSON.stringify({
         "input": "{}",
         "name": `${Date.now()}`,

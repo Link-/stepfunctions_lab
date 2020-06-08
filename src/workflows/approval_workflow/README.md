@@ -28,9 +28,10 @@ The below will prepare the AWS environment we will use with this workflow demo. 
 
 Don't forget to destroy the stack when you are done with it with `terraform destroy`.
 
+**Follow this documentation in the order specified** all the way until the end of this section. This is the best way to safely build up the environment.
+
 ```sh
-# Make sure you are in the main project directory
-approval_workflow/
+# Make sure you are in the main project directory: approval_workflow/
 
 # Build the needed artefacts and run the controller app
 init.sh
@@ -85,6 +86,9 @@ From the web app you can simulate a new order triggering a new state machine exe
 To run the controller app, replace the environment variable values below with the values from the output above and run `npm start`. Example:
 
 ```sh
+# Make sure you are in the folder ./app
+cd ./app
+
 env AWS_REGION="eu-west-1" \
 env QUEUE_URL="https://sqs.eu-west-1.amazonaws.com/<account_numb>/pending_orders_queue" \
 env API_URL="https://<unique_id>.execute-api.eu-west-1.amazonaws.com/test/order" \
@@ -111,4 +115,7 @@ terraform apply \
   terraform
 ```
 
-⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
+## Notice
+
+1. ⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
+2. ⚠️ If Step Functions have running executions it will be scheduled for deletion when you destroy the stack and will only be deleted when all the executions are completed or timeout. In order to fix this, login to the console and manually abort the running executions
