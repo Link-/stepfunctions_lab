@@ -3,6 +3,12 @@
 
 This is a step functions workflow that demonstrates how you can implement signaling (pausing and processing external input) with the help of callbacks and AWS SQS.
 
+## Demo
+
+Watch this quick 1 minute video demonstrating the stack and the controller app.
+
+[![Youtube Video Demo](https://img.youtube.com/vi/AteR8q-Dx9s/0.jpg)](https://www.youtube.com/watch?v=AteR8q-Dx9s)
+
 ## Architecture
 
 !["Architecture Diagram"](./_assets/sfn_approval_workflow.png)
