@@ -28,6 +28,38 @@ This is not a **production ready architecture**. This is designed for educationa
 
 ## Structure
 
+The following is the list of the important folders / files in this project that you should pay attention to:
+```
+.
+├── README.md
+├── _assets
+│   ├── sfn_approval_workflow.png
+│   └── sfn_approval_workflow.xml
+├── app
+│   ├── app.js
+│   ├── bin
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   ├── routes
+│   └── views
+├── init.sh
+├── lambda
+│   └── function.py
+├── state_machine_definition.json.tpl
+├── terraform
+│   ├── main.tf
+│   ├── outputs.tf
+    └── variables.tf
+```
+
+- `app/`: Folder containing the controller app. Node.js web application built with Express
+- `lambda/` : Folder containg the payload of the backup lambda function
+- `terraform/` : Folder containing the terraform templates
+- `init.sh` : Script that will build the needed artefacts and prepare the terraform environment
+- `state_machine_definition.json.tpl` : The definition of the step function's state machine. It's been re-written as a terraform template to allow the injection of the lambda's arn in it
+
 ## Build the AWS Stack
 
 The below will prepare the AWS environment we will use with this workflow demo. It will create the necessary IAM roles, policies, step functions state machine, SQS queue and a lambda.
@@ -124,4 +156,4 @@ terraform apply \
 ## Notice
 
 1. ⚠️ Make sure to pass the exact same variables when you want to destroy the stack.
-2. ⚠️ If Step Functions have running executions it will be scheduled for deletion when you destroy the stack and will only be deleted when all the executions are completed or timeout. In order to fix this, login to the console and manually abort the running executions
+2. ⚠️ If Step Functions have running executions it will be scheduled for deletion when you destroy the stack and will only be deleted when all the executions are completed or timeout. In order to fix this, login to the console and manually abort the running executions.

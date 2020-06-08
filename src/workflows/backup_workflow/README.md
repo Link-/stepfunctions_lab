@@ -13,7 +13,7 @@ The following is the list of the important folders / files in this project that 
 ```
 .
 ├── README.md
-├── build.sh
+├── init.sh
 ├── lambda
 │   └── function.py
 ├── state_machine_definition.json.tpl
@@ -25,7 +25,7 @@ The following is the list of the important folders / files in this project that 
 
 - `lambda/` : Folder containg the payload of the backup lambda function
 - `terraform/` : Folder containing the terraform templates
-- `build.sh` : Script that will build the needed artefacts and prepare the terraform environment
+- `init.sh` : Script that will build the needed artefacts and prepare the terraform environment
 - `state_machine_definition.json.tpl` : The definition of the step function's state machine. It's been re-written as a terraform template to allow the injection of the lambda's arn in it
 
 ## Run
