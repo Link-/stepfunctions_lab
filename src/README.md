@@ -2,10 +2,10 @@
 
 ```
 .
-├── backup_workflow
-├── email_approval
-├── mobile_onboarding
-└── pdf_invoice
+├── README.md
+└── workflows
+    ├── approval_workflow
+    └── backup_workflow
 
-4 directories, 0 files
+3 directories, 1 file
 ```
