@@ -1,5 +1,5 @@
 # AWS Step Functions Lab
-> This is a support repository for this blog post: https://blog.bassemdy.com/
+> This is a support repository for this blog post: [Planning on using AWS Step Functions? Think again](https://blog.bassemdy.com/2020/06/08/aws/architecture/microservices/patterns/aws-step-functions-think-again.html)
 
 Please read the blog post 👆for context before exploring this repository. If you're feeling extra daring today, jump to Development Setup below for more instructions.
 
