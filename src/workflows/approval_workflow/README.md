@@ -15,14 +15,14 @@ Watch this quick 1 minute video demonstrating the stack and the controller app.
 
 This workflow is more complex than `backup_workflow`, let's break down what's happening here:
 
-1. Using the [AWS API Gateway](https://aws.amazon.com/api-gateway/) we create an endpoint that will receive an `HTTP POST` request on the endpoint `https://<whatever_url_we_configure>/test/order`
-2. The API endpoint will kickoff the step functions workflow execution simulating a new order in the system
-3. The starting point of the workflow / state machine is a [Lambda Function](https://aws.amazon.com/lambda/) that will simulate an order being processed by some backend system
-4. The state machine then transitions to a task that will push a message to SQS with a `Task Token` and will pause while it waits to receive a success or fail callback
-5. [SQS](https://aws.amazon.com/sqs/) will receive the message and push it to the designated queue
-6. Our local [Express](https://expressjs.com/) controller app will expose a few local endpoints and when it receives an `HTTP GET` request to `http://localhost:<port>/pending` it will pull a message from SQS for processing
-7. Upon calling the locally exposed endpoint `http://localhost:<port>/approval` our app will send a `SendSuccess` signal to our state machine ordering it to move ot the next step
-8. We will delete that message from the queue and ased on the callback received by the state machine will move to Success (we are not handling a failure scenario)
+1. Using the AWS API Gateway we create an endpoint that will receive an HTTP POST request on the endpoint `https://<whatever_url_we_configure>/test/order`
+2. The API endpoint will start the step functions workflow execution simulating a new order in the system
+3. The starting point of the workflow / state machine is a Lambda Function that will simulate an order being processed by some backend system
+4. The state machine then transitions to a task that will push a message to SQS with a `TaskToken` and will **pause while it waits to receive a success or fail callback**
+5. SQS will receive the message and push it to a queue of our choice
+6. Our local Express controller app will expose a few endpoints and when it receives an HTTP GET request to `http://localhost:<port>/pending` it will pull a message from SQS for processing
+7. Upon calling the locally exposed endpoint `http://localhost:<port>/approval` our app, using the AWS SDK will call the `SendTaskSuccess` ordering our state machine to successfully transition to the next step
+8. Finally we will delete that message from the queue and based on the callback received by the state machine will move to Success (we are not handling a failure scenario)
 
 This is not a **production ready architecture**. This is designed for educational / illustrative purposes only.
 
